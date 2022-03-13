@@ -110,21 +110,6 @@ function renderQuestion() {
 
 }
 
-function checkAnswer() {
-    choices = document.getElementsByName("choices");
-    for (var i = 0; i < choices.length; i++) {
-        if (choices[i].checked) {
-            choices = choice[i].value;
-        }
-        if (choices == question[position].answer) {
-            score++;
-        }
-        position++
-        renderQuestion();
-    }
-}
-
-
 
 // timer goes down
 function startTimer() {
