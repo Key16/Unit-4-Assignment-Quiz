@@ -54,7 +54,7 @@ function startQuiz() {
     document.body.appendChild(quizWelcome);
     // creates button for start game
     var button = document.createElement("button");
-    var startQuizbutton = document.createTextNode("Start Game");
+    var startQuizbutton = document.createTextNode("Start Quiz");
     button.appendChild(startQuizbutton);
     document.body.appendChild(button);
     // removes welcome text and button after clicking start game
@@ -63,18 +63,20 @@ function startQuiz() {
         quizWelcome.remove();
         startTimer();
         renderQuestion();
+
     });
+
 }
 
 
 function renderQuestion() {
     console.log("rendering question");
     // finished quiz
-    if (position >= questions.length) {
+    if (position[i] >= questions.length) {
         quizBody.innerHTML = "<h3>" + "Congratulations" + "</h3>";
     }
 
-    quizBody.innerHTML = "<h2> Question " + (parseInt(position) + 1) + " of " + questions.length
+    var questionCounter = quizBody.innerHTML = "<h2> Question " + (parseInt(position) + 1) + " of " + questions.length
 
     // grabbing the array number for each question loop
 
@@ -84,9 +86,12 @@ function renderQuestion() {
     answerC = questions[position].c;
     answerD = questions[position].d;
 
+    // quizBody.innerHTML = "<h2> Question " + (parseInt(position[])) + " of " + questions.length
+
+    quizBody.innerHTML = "<h2> Question " + (parseInt(position) + 1) + " of " + questions.length
     // displays the question
 
-    quizBody.innerHTML = "<h3> " + question + "<h3>"
+    quizBody.innerHTML += "<h3> " + question + "<h3>"
 
     // displays the answers
 
@@ -98,17 +103,28 @@ function renderQuestion() {
     var choices = document.getElementsByName("choices")
     var choicesLength = choices.length
 
-    for (var i = 0; i < choicesLength; i++) {
+
+
+    for (var i = 0; i <= choicesLength; i++) {
         choices[i].onclick = function () {
             if (choices == question[position].answer) {
                 score++;
             }
+            else if (choices[i] === choicesLength) {
+                var finalQuestion = document.body.children[3]
+                finalQuestion.remove();
+
+            }
+
             position++
+
             renderQuestion();
+
         }
     }
-
 }
+// questionsCounter.remove();
+
 
 
 // timer goes down
