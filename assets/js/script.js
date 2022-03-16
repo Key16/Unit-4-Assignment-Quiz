@@ -1,39 +1,44 @@
 // variables needed
 var quizBody = document.getElementById("quiz")
 var timeLeft = document.getElementById("time-counter")
-var secondsLeft = 5;
+var highscoreBody = document.getElementById("high-score-container")
+var secondsLeft = 10;
 var score = 0
+var endQuiz = false
+var endMessage = "You made it to the end!"
+var correctAudio = new Audio('https://freesound.org/data/previews/325/325444_4490625-lq.mp3')
+var incorrectAudio = new Audio('https://freesound.org/data/previews/325/325443_4490625-lq.mp3')
 var questions = [
     {
-        question: "What is 36 + 42",
-        a: "64",
-        b: "78",
-        c: "76",
-        d: "B",
-        answer: "A"
+        question: "How does a FOR loop start?",
+        a: "for i = 1 to 5",
+        b: "for (i = 0; i <= 5)",
+        c: "for (i <= 5; i++)",
+        d: "for (i = 0; i <= 5; i++)  ",
+        answer: "D"
     },
     {
-        question: "What is 7 x 4?",
-        a: "21",
-        b: "27",
-        c: "28",
-        d: "x",
-        answer: "A"
+        question: "How do you write 'Hello World' in an alert box?",
+        a: "alertBox('Hello World')",
+        b: "msg('Hello World')",
+        c: "alert('Hello World')",
+        d: "console.log('Hello World)",
+        answer: "C"
     },
     {
-        question: "What is 16 / 4?",
-        a: "4",
-        b: "6",
-        c: "3",
-        d: "A",
-        answer: "A"
+        question: "Which operator is used to assign a value to a variable?",
+        a: "=>",
+        b: "-",
+        c: "=",
+        d: "==",
+        answer: "C"
     },
     {
-        question: "What is 8 x 12?",
-        a: "88",
-        b: "112",
-        c: "96",
-        d: "C",
+        question: "Which event occurs when the user clicks on an HTML element?",
+        a: "onclick",
+        b: "onchange",
+        c: "onmouseclick",
+        d: "onmouseover",
         answer: "A"
     }
 ];
@@ -43,7 +48,7 @@ var position = 0
 
 function init() {
     startQuiz();
-
+    renderHighScore();
 
 }
 // shows first starting page and button
@@ -51,12 +56,12 @@ function startQuiz() {
     // creates welcome text
     var quizWelcome = document.createElement("h3");
     quizWelcome.textContent = "Welcome to the quiz on JS blah blah"
-    document.body.appendChild(quizWelcome);
+    quizBody.appendChild(quizWelcome);
     // creates button for start game
     var button = document.createElement("button");
     var startQuizbutton = document.createTextNode("Start Quiz");
     button.appendChild(startQuizbutton);
-    document.body.appendChild(button);
+    quizBody.appendChild(button);
     // removes welcome text and button after clicking start game
     button.addEventListener("click", function () {
         button.remove();
@@ -70,13 +75,26 @@ function startQuiz() {
 
 
 function renderQuestion() {
-    console.log("rendering question");
-    // finished quiz
-    if (position[i] >= questions.length) {
-        quizBody.innerHTML = "<h3>" + "Congratulations" + "</h3>";
+
+
+    if (position >= questions.length) {
+        quizBody.innerHTML = "<h2> Your score is " + score + "/" + questions.length + "</h2>"
+        position = 0
+        //sets win to true
+        endQuiz = true;
+        //sets the message depending on your score, piped into endmessage at the end
+        if (score === 2 || score === 3) {
+            endMessage = "You almost made it!";
+        } else if (score === 1) {
+            endMessage = "Try harder next time!"
+        } else if (score === 4) {
+            endMessage = "Great work!"
+        }
+        return;
     }
 
-    var questionCounter = quizBody.innerHTML = "<h2> Question " + (parseInt(position) + 1) + " of " + questions.length
+    //shows question 
+    quizBody.innerHTML = "<h2> Question " + (parseInt(position) + 1) + " of " + questions.length
 
     // grabbing the array number for each question loop
 
@@ -95,36 +113,40 @@ function renderQuestion() {
 
     // displays the answers
 
-    quizBody.innerHTML += "<label> <input type='radio' name='choices' value='A'>" + answerA + "</label><br>"
-    quizBody.innerHTML += "<label> <input type='radio' name='choices' value='B'>" + answerB + "</label><br>"
-    quizBody.innerHTML += "<label> <input type='radio' name='choices' value='C'>" + answerC + "</label><br>"
-    quizBody.innerHTML += "<label> <input type='radio' name='choices' value='D'>" + answerD + "</label><br>"
+    quizBody.innerHTML += "<label> <input type='radio' name='choices' value='A' button onclick= 'checkAnswer()'>" + answerA + "</label><br>"
+    quizBody.innerHTML += "<label> <input type='radio' name='choices' value='B' button onclick= 'checkAnswer()'>" + answerB + "</label><br>"
+    quizBody.innerHTML += "<label> <input type='radio' name='choices' value='C' button onclick= 'checkAnswer()'>" + answerC + "</label><br>"
+    quizBody.innerHTML += "<label> <input type='radio' name='choices' value='D' button onclick= 'checkAnswer()'>" + answerD + "</label><br>"
 
-    var choices = document.getElementsByName("choices")
-    var choicesLength = choices.length
+}
 
-
-
-    for (var i = 0; i <= choicesLength; i++) {
-        choices[i].onclick = function () {
-            if (choices == question[position].answer) {
-                score++;
-            }
-            else if (choices[i] === choicesLength) {
-                var finalQuestion = document.body.children[3]
-                finalQuestion.remove();
-
-            }
-
-            position++
-
-            renderQuestion();
-
+function checkAnswer() {
+    choices = document.getElementsByName("choices");
+    for (var i = 0; i < choices.length; i++) {
+        console.log(choices[i])
+        if (choices[i].checked) {
+            choice = choices[i].value;
         }
     }
-}
-// questionsCounter.remove();
+    // increase score if correct and plays correct audio
+    if (choice == questions[position].answer) {
+        score++
+        correctAudio.play();
 
+    }
+    // decreases time by 2 seconds and plays incorrect audio
+    else {
+        secondsLeft = secondsLeft - 2
+        timeLeft.textContent = secondsLeft
+        incorrectAudio.play();
+    }
+    position++
+    renderQuestion();
+}
+
+
+
+// logging score
 
 
 // timer goes down
@@ -135,25 +157,108 @@ function startTimer() {
         secondsLeft--;
         timeLeft.textContent = secondsLeft;
 
-        if (secondsLeft === 0) {
+        if (secondsLeft <= 0) {
             // Stops execution of action at set interval
             clearInterval(timerInterval);
             // Calls function to create and append image
             quizOver();
+
+        }
+        else if (endQuiz) {
+            clearInterval(timerInterval);
+            endText();
+            storeHighScore();
         }
 
     }, 1000);
 }
 
+function quizOver() {
+    timeLeft.textContent = " 😔 "
+    endMessage = "You ran out of time!"
+    quizBody.remove();
+    endText();
+}
+
+function endText() {
+    var endTextMessage = document.createElement("h3")
+    endTextMessage.textContent = endMessage;
+    document.body.appendChild(endTextMessage);
+
+}
+
+function storeHighScore() {
+    localStorage.setItem("score", score);
+
+    var form = document.createElement("FORM");
+    form.setAttribute("id", "myForm")
+    document.body.appendChild(form);
+    var label = document.createElement("label");
+    label.setAttribute("for", "name")
+    label.textContent = "Record Score "
+    form.appendChild(label);
+
+    var input = document.createElement("INPUT");
+    input.setAttribute("type", "text")
+    input.setAttribute("value", "Your Name")
+    input.setAttribute("name", "inputName")
+    input.setAttribute("id", "name")
+    form.appendChild(input);
+
+    var submit = document.createElement("input");
+    submit.setAttribute("type", "submit")
+    submit.setAttribute("value", "Submit")
+    form.appendChild(submit);
+    console.log(input)
+
+
+    submit.addEventListener("click", function (event) {
+        event.preventDefault();
+
+        var name = document.getElementById("name").value;
+        localStorage.setItem("name", name);
+
+        location.href = "./highscore.html";
+
+    });
+
+
+}
+
+
+// function renderHighScore() {
+//     var name = localStorage.getItem("name");
+//     var score = localStorage.getItem("score");
+//     var hs = document.createElement("h2");
+//     highscoreBody.appendChild(hs)
+//     console.log(name)
+//     if (!name) {
+//         hs.textContent = "No scores recorded yet"
+//     }
+
+//     hs.textContent = name + " - " + score
+
+
+// }
+
+
+// renderHighScore();
+
+
+
 
 // if it goes to the end what happens
 
-function quizOver() {
-    timeLeft.textContent = " 😔 "
-    var quizFail = document.createElement("h2");
-    quizFail.textContent = "You need to go study more JS"
-    document.body.appendChild(quizFail);
-}
+
+
+
+
+
+
+
+
+
+
 
 // question shows
 
@@ -167,159 +272,3 @@ function quizOver() {
 
 init();
 
-
-// (function () {
-//     // Functions
-//     function buildQuiz() {
-//         // variable to store the HTML output
-//         const output = [];
-
-//         // for each question...
-//         myQuestions.forEach(
-//             (currentQuestion, questionNumber) => {
-
-//                 // variable to store the list of possible answers
-//                 const answers = [];
-
-//                 // and for each available answer...
-//                 for (letter in currentQuestion.answers) {
-
-//                     // ...add an HTML radio button
-//                     answers.push(
-//                         `<label>
-//                 <input type="radio" name="question${questionNumber}" value="${letter}">
-//                 ${letter} :
-//                 ${currentQuestion.answers[letter]}
-//               </label>`
-//                     );
-//                 }
-
-//                 // add this question and its answers to the output
-//                 output.push(
-//                     `<div class="slide">
-//               <div class="question"> ${currentQuestion.question} </div>
-//               <div class="answers"> ${answers.join("")} </div>
-//             </div>`
-//                 );
-//             }
-//         );
-
-//         // finally combine our output list into one string of HTML and put it on the page
-//         quizContainer.innerHTML = output.join('');
-//     }
-
-//     function showResults() {
-
-//         // gather answer containers from our quiz
-//         const answerContainers = quizContainer.querySelectorAll('.answers');
-
-//         // keep track of user's answers
-//         let numCorrect = 0;
-
-//         // for each question...
-//         myQuestions.forEach((currentQuestion, questionNumber) => {
-
-//             // find selected answer
-//             const answerContainer = answerContainers[questionNumber];
-//             const selector = `input[name=question${questionNumber}]:checked`;
-//             const userAnswer = (answerContainer.querySelector(selector) || {}).value;
-
-//             // if answer is correct
-//             if (userAnswer === currentQuestion.correctAnswer) {
-//                 // add to the number of correct answers
-//                 numCorrect++;
-
-//                 // color the answers green
-//                 answerContainers[questionNumber].style.color = 'lightgreen';
-//             }
-//             // if answer is wrong or blank
-//             else {
-//                 // color the answers red
-//                 answerContainers[questionNumber].style.color = 'red';
-//             }
-//         });
-
-//         // show number of correct answers out of total
-//         resultsContainer.innerHTML = `${numCorrect} out of ${myQuestions.length}`;
-//     }
-
-//     function showSlide(n) {
-//         slides[currentSlide].classList.remove('active-slide');
-//         slides[n].classList.add('active-slide');
-//         currentSlide = n;
-//         if (currentSlide === 0) {
-//             previousButton.style.display = 'none';
-//         }
-//         else {
-//             previousButton.style.display = 'inline-block';
-//         }
-//         if (currentSlide === slides.length - 1) {
-//             nextButton.style.display = 'none';
-//             submitButton.style.display = 'inline-block';
-//         }
-//         else {
-//             nextButton.style.display = 'inline-block';
-//             submitButton.style.display = 'none';
-//         }
-//     }
-
-//     function showNextSlide() {
-//         showSlide(currentSlide + 1);
-//     }
-
-//     function showPreviousSlide() {
-//         showSlide(currentSlide - 1);
-//     }
-
-//     // Variables
-//     const quizContainer = document.getElementById('quiz');
-//     const resultsContainer = document.getElementById('results');
-//     const submitButton = document.getElementById('submit');
-//     const myQuestions = [
-//         {
-//             question: "Who invented JavaScript?",
-//             answers: {
-//                 a: "Douglas Crockford",
-//                 b: "Sheryl Sandberg",
-//                 c: "Brendan Eich"
-//             },
-//             correctAnswer: "c"
-//         },
-//         {
-//             question: "Which one of these is a JavaScript package manager?",
-//             answers: {
-//                 a: "Node.js",
-//                 b: "TypeScript",
-//                 c: "npm"
-//             },
-//             correctAnswer: "c"
-//         },
-//         {
-//             question: "Which tool can you use to ensure code quality?",
-//             answers: {
-//                 a: "Angular",
-//                 b: "jQuery",
-//                 c: "RequireJS",
-//                 d: "ESLint"
-//             },
-//             correctAnswer: "d"
-//         }
-//     ];
-
-//     // Kick things off
-//     buildQuiz();
-
-//     // Pagination
-//     const previousButton = document.getElementById("previous");
-//     const nextButton = document.getElementById("next");
-//     const slides = document.querySelectorAll(".slide");
-//     let currentSlide = 0;
-
-//     // Show the first slide
-//     showSlide(currentSlide);
-
-//     // Event listeners
-//     submitButton.addEventListener('click', showResults);
-//     previousButton.addEventListener("click", showPreviousSlide);
-//     nextButton.addEventListener("click", showNextSlide);
-// })();
