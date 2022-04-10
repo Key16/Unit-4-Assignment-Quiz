@@ -1,4 +1,4 @@
-## Quiz Assignment - colorblind test
+## Quiz Assignment 
 
 ### Brainstorming
 
